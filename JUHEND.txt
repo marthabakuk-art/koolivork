@@ -1,0 +1,29 @@
+KOOLIVÕRGU ARENDUSMUDEL – avaldamine GitHub Pages'is (umbes 10 minutit)
+
+Kaustas on kõik vajalik: index.html (mudel), qr.html (suure ekraani leht QR-koodiga),
+mudeli failid (engine*.js, worker.js), andmed (olukord.json, geo.json, kaust data).
+Mudel töötab täielikult kasutaja brauseris; serverit ega andmebaasi pole vaja.
+
+1. Mine aadressile https://github.com ja loo tasuta konto (Sign up), kui seda veel pole.
+2. Vajuta paremal üleval "+" → "New repository".
+   Repository name: koolivork  ·  vali "Public"  ·  vajuta "Create repository".
+3. Uue hoidla lehel vajuta lingil "uploading an existing file".
+   Lohista brauseriaknasse KÕIK selle kausta failid ja kaust "data" (mitte kausta ennast).
+   Oota, kuni kõik failid on üles laaditud (data/teeajad_b64.txt on ~5 MB), ja vajuta "Commit changes".
+4. Ava hoidlas "Settings" → vasakult "Pages".
+   "Build and deployment" → Source: "Deploy from a branch" → Branch: "main" ja "/ (root)" → "Save".
+5. 1–2 minuti pärast on mudel aadressil
+      https://KASUTAJANIMI.github.io/koolivork/
+   ja suure ekraani leht aadressil
+      https://KASUTAJANIMI.github.io/koolivork/qr.html
+   (KASUTAJANIMI on sinu GitHubi kasutajanimi; täpne aadress on näha samal Pages-lehel.)
+6. Kontrolli: ava qr.html arvutis, skaneeri QR-kood telefoniga ja vaata, et mudel avaneb.
+   Esmasel avamisel arvutab mudel 10–20 sekundit; avalehe numbrid on näha kohe.
+   Suurel ekraanil vajuta F11 (täisekraan).
+
+Lisavõimalus: kui kasutad lühilinki (nt bit.ly), saab QR-koodi teha selle jaoks:
+   https://KASUTAJANIMI.github.io/koolivork/qr.html?url=https://bit.ly/xxxx
+
+NB! Hoidla on avalik: kõik failid on kõigile nähtavad. Mudelis on ainult avalikest allikatest
+pärit andmed (EHIS/Haridussilm, KOVide aruanded, ehitisregister, Statistikaamet).
+"Küsi mudelilt" lehel töötavad valmisküsimused; vabas vormis küsimused (Claude) siin ei tööta.
