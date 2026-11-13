@@ -176,6 +176,9 @@ ol.missing li{padding-left:4px}
 .ava-card .more{font-size:13px; color:var(--accent)}
 .ava-cav{border-left:4px solid var(--warn)}
 .ava-cav ul{margin:8px 0 0; padding-left:18px; display:grid; gap:6px; font-size:14.5px; line-height:1.5; max-width:110ch}
+.ava-quote{border-left:4px solid var(--accent); padding:6px 0 6px 18px; margin:6px 0 10px}
+.ava-quote p{margin:0; max-width:68ch; font:500 20px/1.5 var(--f-display); color:var(--ink)}
+@media (max-width:600px){ .ava-quote p{font-size:17px} }
 .ava-links{display:flex; flex-wrap:wrap; gap:8px}
 @media (max-width:600px){ .ava-hero h2{font-size:24px} .ava-card .big{font-size:28px} .ava-proto{font-size:14px} }
 </style>
@@ -1488,7 +1491,8 @@ function viewAva(){
      <div class="search"><input id="avaQ" list="unitlist" placeholder="Nt Tartu linn, Saaremaa vald, Lõuna-Eesti…" autocomplete="off" style="width:100%"></div>
      <p class="small muted" style="margin:0">Valla ja kooli tasemel on tulemus kõige ebakindlam ja näitab mudeli loogikat, mitte soovitust.</p>
      <p class="small muted" style="margin:0">Mudel arvutab kõik teie brauseris; andmeid ei saadeta kuhugi. Allikad: EHIS ja Haridussilm, KOVide aruanded, ehitisregister, Statistikaamet (vt Andmed ja täpsus).</p>
-     <p class="small muted" style="margin:0"><b>Senine praktika</b> – omavalitsused liidavad koole ja kooliastmeid nagu seni. <b>Tasuv investeering</b> – tegevuskulu kokkuhoid katab investeeringu laenu hinna (tootlus üle 4% aastas).</p>${live?'':'<p class="small muted" style="margin:0">Numbrid on vaikeeeldustega; mudel arvutab taustal…</p>'}</div></div>`;
+     <p class="small muted" style="margin:0"><b>Senine praktika</b> – omavalitsused liidavad koole ja kooliastmeid nagu seni. <b>Tasuv investeering</b> – tegevuskulu kokkuhoid katab investeeringu laenu hinna (tootlus üle 4% aastas).</p>${live?'':'<p class="small muted" style="margin:0">Numbrid on vaikeeeldustega; mudel arvutab taustal…</p>'}</div></div>
+   <div class="ava-quote"><p>Koolivõrgu arendusmudel oleks fundamentaalselt erinev, kui tehnoloogia kiire areng aitaks leida lahenduse, mis võimaldab ka alla 50 õpilasega koolis pakkuda suurepärast haridust ja õpikogemust sama kuluefektiivselt kui suures koolis.</p></div>`;
   el.querySelectorAll('[data-ava]').forEach(b=>b.onclick=()=>{ ST.lvl='EE'; ST.key='Eesti'; show(b.dataset.ava); });
   const q=$('#avaQ'); if (q) q.onchange=()=>{ const r=resolveUnit(q.value); if (r){ ST.lvl=r[0]; ST.key=r[1]; lsSet('sel',r); show(r[0]==='kool'?'olukord':'sim'); } };
 }
