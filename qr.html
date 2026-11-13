@@ -4,40 +4,48 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap">
 <style>
-:root{--bg:#f2f4f5; --surface:#fff; --ink:#15212b; --muted:#566673; --line:#d6dee3; --accent:#1b5d7c; --scen:#a8641c;}
+:root{--bg:#f2f4f5; --surface:#fff; --ink:#15212b; --muted:#566673; --line:#d6dee3; --accent:#1b5d7c; --scen:#a8641c; --warn:#a8741a;}
 *{box-sizing:border-box}
 html,body{margin:0; height:100%; background:var(--bg); color:var(--ink); font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif}
-.stage{min-height:100vh; display:grid; grid-template-columns:1.25fr 1fr; gap:4vw; align-items:center; padding:4vh 5vw}
-.proto{display:inline-block; font:600 1.4vw/1 "IBM Plex Sans",sans-serif; letter-spacing:.12em; text-transform:uppercase; color:var(--scen); border:2px solid var(--scen); border-radius:6px; padding:.5vw .8vw}
-h1{font:600 4.2vw/1.05 "IBM Plex Serif",Georgia,serif; margin:2.2vh 0 1.2vh}
-.sub{font-size:1.7vw; line-height:1.4; color:var(--muted); margin:0 0 3vh; max-width:42ch}
-.nums{display:grid; grid-template-columns:1fr 1fr; gap:1.4vw}
-.n{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:1.3vw 1.6vw}
-.n .v{font:600 3vw/1.1 "IBM Plex Sans",sans-serif; color:var(--accent); font-variant-numeric:tabular-nums}
-.n .l{font-size:1.35vw; font-weight:500; margin-top:.6vh}
-.n .s{font-size:1.1vw; color:var(--muted); margin-top:.4vh}
-.qrbox{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:2.4vw; display:grid; justify-items:center; gap:2vh; text-align:center}
-#qr svg{width:min(34vw,62vh); height:auto; display:block}
-.cta{font:600 2vw/1.25 "IBM Plex Sans",sans-serif}
-.url{font:500 1.35vw/1.3 "IBM Plex Mono",ui-monospace,monospace; color:var(--accent); word-break:break-all}
-.note{font-size:1.1vw; color:var(--muted); max-width:38ch}
+.stage{min-height:100vh; display:grid; grid-template-columns:1.3fr 1fr; gap:3.5vw; align-items:center; padding:3.5vh 4.5vw}
+.left{display:grid; gap:2.2vh}
+h1{font:600 3.6vw/1.05 "IBM Plex Serif",Georgia,serif; margin:0}
+.proto-box{display:flex; gap:1vw; align-items:flex-start; background:color-mix(in srgb, var(--scen) 9%, var(--surface)); border:2px solid color-mix(in srgb, var(--scen) 50%, var(--line)); border-radius:10px; padding:1.1vw 1.3vw; font-size:1.25vw; line-height:1.4}
+.proto{flex:none; display:inline-block; font:600 .95vw/1 "IBM Plex Sans",sans-serif; letter-spacing:.12em; text-transform:uppercase; color:var(--scen); border:2px solid var(--scen); border-radius:6px; padding:.45vw .6vw; margin-top:.15vw}
+.nums{display:grid; grid-template-columns:1fr 1fr; gap:1.1vw}
+.n{background:var(--surface); border:1px solid var(--line); border-top:4px solid var(--accent); border-radius:10px; padding:1.1vw 1.4vw}
+.n .v{font:600 2.6vw/1.1 "IBM Plex Sans",sans-serif; color:var(--accent); font-variant-numeric:tabular-nums}
+.n .l{font-size:1.2vw; font-weight:500; margin-top:.4vh}
+.n .s{font-size:1vw; color:var(--muted); margin-top:.3vh; line-height:1.35}
+.cav{background:var(--surface); border:1px solid var(--line); border-left:5px solid var(--warn); border-radius:10px; padding:1vw 1.4vw; font-size:1.05vw; line-height:1.45}
+.cav b.h{display:block; font-size:1.15vw; margin-bottom:.4vh}
+.cav ul{margin:0; padding-left:1.2vw; display:grid; gap:.3vh}
+.qrbox{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:2.2vw; display:grid; justify-items:center; gap:1.8vh; text-align:center}
+#qr svg{width:min(32vw,58vh); height:auto; display:block}
+.cta{font:600 1.9vw/1.25 "IBM Plex Sans",sans-serif}
+.url{font:500 1.7vw/1.3 "IBM Plex Mono",ui-monospace,monospace; color:var(--accent); word-break:break-all}
+.note{font-size:1.05vw; color:var(--muted); max-width:36ch}
 @media (max-width:800px), (orientation:portrait){
- .stage{grid-template-columns:1fr; padding:24px 16px} .proto{font-size:13px; padding:6px 8px} h1{font-size:34px} .sub{font-size:17px}
- .n .v{font-size:28px} .n .l{font-size:15px} .n .s{font-size:13px} .n{padding:14px} .cta{font-size:20px} .url{font-size:14px} .note{font-size:13px} #qr svg{width:min(80vw,360px)}
+ .stage{grid-template-columns:1fr; padding:20px 16px; gap:20px} h1{font-size:30px} .proto-box{font-size:15px; padding:12px} .proto{font-size:12px; padding:5px 7px}
+ .n .v{font-size:26px} .n .l{font-size:15px} .n .s{font-size:13px} .n{padding:12px} .cav{font-size:14px; padding:12px} .cav b.h{font-size:15px} .cav ul{padding-left:18px}
+ .cta{font-size:20px} .url{font-size:16px} .note{font-size:13px} #qr svg{width:min(80vw,360px)}
 }
 </style></head>
 <body><div class="stage">
- <div>
-  <span class="proto">prototüüp</span>
+ <div class="left">
   <h1>Koolivõrgu arendusmudel</h1>
-  <p class="sub">Eesti üldhariduskoolid 2025 → 2035 → 2040. Mudeli eeldustel arvutatud võrdlusalus aruteluks, mitte soovitus konkreetse kooli kohta.</p>
-  <div class="nums"><div class="n"><div class="v">−37%</div><div class="l">õpilasi 2040. aastaks</div><div class="s">162 708 → 101 718</div></div><div class="n"><div class="v">678 mln €</div><div class="l">tasuvad investeeringud 2027–2033</div><div class="s">20 gümnaasiumipiirkonnas, tootlus 8,3% aastas</div></div><div class="n"><div class="v">−69 mln €</div><div class="l">tegevuskulu aastas 2035</div><div class="s">võrreldes senise praktikaga</div></div><div class="n"><div class="v">82% → 88%</div><div class="l">ligipääs tugevale gümnaasiumile</div><div class="s">4 maakonnakeskuse gümnaasiumi kvaliteedi tõstmisega</div></div></div>
+  <div class="proto-box"><span class="proto">prototüüp</span><div><b>Koolivõrgu optimeerimise mudeli prototüüp.</b> Eesti üldhariduskoolid 2025 → 2035 → 2040. Tulemused on arvutatud avalikult kirjeldatud eeldustel ja on arutelu alus – mitte prognoos, kava ega soovitus ühelegi koolile või omavalitsusele.</div></div>
+  <div class="nums"><div class="n"><div class="v">−37%</div><div class="l">õpilasi 2040. aastaks</div><div class="s">162 708 → 101 718</div></div><div class="n"><div class="v">678 mln €</div><div class="l">tasuvad investeeringud 2027–2033</div><div class="s">mudeli eeldustel 20 gümnaasiumipiirkonnas, tootlus 8,3% aastas</div></div><div class="n"><div class="v">−69 mln €</div><div class="l">tegevuskulu aastas 2035</div><div class="s">arvutuslik, võrreldes senise praktikaga</div></div><div class="n"><div class="v">82% → 88%</div><div class="l">ligipääs tugevale gümnaasiumile</div><div class="s">eeldusel, et 4 maakonnakeskuse gümnaasiumi kvaliteet tõuseb</div></div></div>
+  <div class="cav"><b class="h">Kuidas tulemusi lugeda</b><ul>
+   <li>Tulemused sõltuvad eeldustest (rahvastikuprognoos, pinnanorm, ehitushind, kooli mõju); neid saab mudelis muuta.</li>
+   <li>Ebakindlus on suur: Eesti ja piirkondade numbrid ±15–25%; valla ja kooli tasemel näitab mudel suunda, mitte otsust.</li>
+   <li>Optimaalne võrk on võrdlusalus; iga muudatus vajab koolipidaja analüüsi ja kogukonna kaasamist.</li></ul></div>
  </div>
  <div class="qrbox">
-  <div class="cta">Ava mudel oma telefonis või arvutis</div>
+  <div class="cta">Ava mudeli prototüüp oma telefonis või arvutis</div>
   <div id="qr" role="img" aria-label="QR-kood mudeli aadressiga"></div>
   <div class="url" id="url"></div>
-  <div class="note">Mudel arvutab kõik sinu brauseris. Vali oma vald, linn või kool ja vaata, mida tulemused seal tähendavad.</div>
+  <div class="note">Prototüüp: tulemused sõltuvad eeldustest, mida saab mudelis muuta. Mudel arvutab kõik sinu brauseris.</div>
  </div>
 </div>
 <script>//---------------------------------------------------------------------

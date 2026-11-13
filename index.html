@@ -91,10 +91,7 @@ section.page>*{min-width:0}
 .pop-x:hover{background:var(--soft); color:var(--ink)}
 /* tabelid */
 .tw{overflow-x:auto}
-  .tbl-wrap{overflow-x:auto; max-width:100%}
-#olist section.box, #olist li, #olist .kpi{min-width:0}
-#olist .kpi .c{overflow-wrap:anywhere}
-  #v-koolid details.box, #v-koolid details.box > *{min-width:0}
+.tbl-wrap{overflow-x:auto; max-width:100%}
 table{border-collapse:collapse; width:100%; font-size:14px}
 table.pst th.grp{text-align:center; border-bottom:2px solid var(--line)} table.pst .gs{border-left:1px solid var(--line)}
 table.pst thead th{text-transform:none; letter-spacing:0; white-space:normal; font-size:13px; line-height:1.3; vertical-align:bottom; color:var(--ink)}
@@ -161,19 +158,26 @@ ol.missing{padding-left:22px; display:grid; gap:12px; margin:0}
 ol.missing li{padding-left:4px}
 .loading{padding:40px 0; color:var(--muted)}
 
-.ava-hero{display:grid; gap:6px; max-width:72ch}
+#v-koolid details.box, #v-koolid details.box > *{min-width:0}
+#olist section.box, #olist li, #olist .kpi{min-width:0}
+#olist .kpi .c{overflow-wrap:anywhere}
+.ava-proto{display:flex; gap:12px; align-items:flex-start; background:color-mix(in srgb, var(--scen) 9%, var(--surface)); border:1px solid color-mix(in srgb, var(--scen) 45%, var(--line)); border-radius:var(--r); padding:12px 14px; font-size:15px; line-height:1.45}
+.ava-proto .proto{flex:none; margin-top:2px}
+.ava-hero{display:grid; gap:4px; max-width:72ch}
 .ava-hero h2{font:600 30px/1.15 var(--f-display); margin:0}
 .ava-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px}
 @media (max-width:1000px){ .ava-grid{grid-template-columns:repeat(2,1fr)} }
 @media (max-width:600px){ .ava-grid{grid-template-columns:1fr} }
-.ava-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:16px 18px; display:grid; gap:6px; align-content:start; text-align:left; color:inherit; font:inherit; cursor:pointer}
-.ava-card:hover{border-color:var(--accent)}
-.ava-card .big{font:600 34px/1.1 var(--f-body); font-variant-numeric:tabular-nums; color:var(--accent)}
-.ava-card .lab{font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em}
-.ava-card .txt{font-size:15px; line-height:1.45}
+.ava-card{background:var(--surface); border:1px solid var(--line); border-top:3px solid var(--accent); border-radius:var(--r); padding:16px 18px; display:grid; grid-template-rows:auto auto 1fr auto; gap:8px; text-align:left; color:inherit; font:inherit; cursor:pointer; min-width:0}
+.ava-card:hover{border-color:var(--accent); box-shadow:0 2px 10px color-mix(in srgb, var(--ink) 8%, transparent)}
+.ava-card .big{font:600 32px/1.1 var(--f-body); font-variant-numeric:tabular-nums; color:var(--accent)}
+.ava-card .lab{font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em}
+.ava-card .txt{font-size:14.5px; line-height:1.5}
 .ava-card .more{font-size:13px; color:var(--accent)}
+.ava-cav{border-left:4px solid var(--warn)}
+.ava-cav ul{margin:8px 0 0; padding-left:18px; display:grid; gap:6px; font-size:14.5px; line-height:1.5; max-width:110ch}
 .ava-links{display:flex; flex-wrap:wrap; gap:8px}
-@media (max-width:600px){ .ava-hero h2{font-size:24px} .ava-card .big{font-size:28px} }
+@media (max-width:600px){ .ava-hero h2{font-size:24px} .ava-card .big{font-size:28px} .ava-proto{font-size:14px} }
 </style>
 
 <header class="top">
@@ -887,7 +891,7 @@ function renderDec(){
        <span class="chip" style="color:${accCol}">ligipääs tugevale gümnaasiumile ${pct(p.acc)}</span><span class="small">${nf(p.N*(1-p.acc))} gümnaasiumiealist ilma ligipääsuta${p.accD>p.acc+0.01?` · koos tänaste õpilaskodudega ${pct(p.accD)}`:''}</span></div>${qiTxt}
        ${ds.length ? `<ol style="margin:10px 0 0; padding-left:20px; display:grid; gap:12px">${ds.map(({d})=>{ const b=briefOf(d), v=verdict(b);
          return `<li><div class="small" style="margin-bottom:6px">${decTitle(d)}</div>
-          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr)); gap:8px">
            <div class="kpi" style="padding:8px 10px"><div class="k">Hinnang</div><div class="v" style="font-size:15px; color:${VC[v[1]]}">${v[0]}</div><div class="c">${v[2]}</div></div>
            <div class="kpi" style="padding:8px 10px"><div class="k">Edasiõpe</div><div class="v" style="font-size:17px">${sgn(b.co, x=>nf(x,1))}</div><div class="c">õpilast lennu kohta${d.qd.g.n?' · gümn. '+pp(d.qd.g.a-d.qd.g.b):''}${d.qd.b.n?' · põhik. '+pp(d.qd.b.a-d.qd.b.b):''}</div></div>
            <div class="kpi" style="padding:8px 10px"><div class="k">Ligipääs</div><div class="v" style="font-size:17px">${sgn(b.acc, x=>nf(x))}</div><div class="c">õpilast saab tugeva gümnaasiumi${b.liit>0?' · liitklassist välja '+nf(b.liit):''}</div></div>
@@ -1454,27 +1458,36 @@ function avaData(){ const X=ST.base, P=X&&X.PL; if (!P || !FC) return null; cons
     kovs:Object.keys(GEO.k).filter(k=>{ const x=P.U['kov:'+k]; return x && (x.phi||0)>0.5; })}; }
 function viewAva(){
   const el=$('#v-ava'), live=avaData(), D = live || (avaDefault() ? AVA0 : null);
-  const hero = `<div class="ava-hero"><h2>Peamised järeldused</h2><p class="lede" style="font-size:16px">Eesti üldhariduskoolid 2025 → 2035 → 2040. Kui palju õpilasi jääb, kuhu tasub mudeli järgi koolivõrku investeerida ja mida see tähendab kuludele ja kvaliteedile õpilase vaates. Mudel on prototüüp: tulemused sõltuvad eeldustest ja on arutelu alus, mitte soovitus konkreetse kooli kohta.</p></div>`;
+  const banner = `<div class="ava-proto"><span class="proto">prototüüp</span><div><b>Koolivõrgu optimeerimise mudeli prototüüp.</b> Tulemused on arvutatud avalikult kirjeldatud eeldustel ja on arutelu alus – mitte prognoos, kava ega soovitus ühelegi koolile või omavalitsusele.</div></div>`;
+  const hero = `${banner}<div class="ava-hero"><h2>Peamised järeldused</h2><p class="lede">Mida mudel eeldustel näitab Eesti üldhariduskoolide kohta aastani 2035–2040. Summad on 2026. aasta hindades.</p></div>`;
   if (!D){ el.innerHTML = hero+`<p class="loading">Arvutan mudelit teie brauseris… (10–20 s)</p>`; return; }
-  const card = (lab, big, txt, go) => `<button type="button" class="ava-card" data-ava="${go}"><span class="lab">${lab}</span><span class="big">${big}</span><span class="txt">${txt}</span><span class="more">Vaata lähemalt →</span></button>`;
+  const card = (lab, big, txt, go) => `<button type="button" class="ava-card" data-ava="${go}"><span class="lab">${lab}</span><span class="big">${big}</span><span class="txt">${txt}</span><span class="more">Vaata arvutust →</span></button>`;
   const qiN = D.qi.length;
   const cards = [
-    card('Õpilased 2040', sgn(D.N40/D.N26-1, v=>pct(v)), `${nf(D.N26)} õpilast 2026 → ${nf(D.N40)} aastal 2040. Kui koolivõrk jääb samaks, kasvab tegevuskulu õpilase kohta ${sgn(D.pp40/D.pp26-1, v=>pct(v))}.`, 'prognoos'),
-    card(`Tasuvad investeeringud ${D.y0}–${D.y1}`, mln(D.P), `Mudeli eeldustel tasub optimaalse koolivõrgu investeering end tegevuskulu kokkuhoiuga ära ${D.nPk} gümnaasiumipiirkonnas ${D.nAll}-st; arvutuslik tootlus ${D.irr?pct(D.irr,1):'–'} aastas. Koos õpikeskkonna säilitamise ja otsustatud projektidega ${mln(D.T)} (senise praktika jätkudes ${mln(D.T0)}).`, 'sim'),
-    card('Tegevuskulu 2035', `−${mln(D.dC)} aastas`, `Võrreldes senise praktikaga: ${eur(D.mpp35)} õpilase kohta ${eur(D.pp35)} asemel. Koole ${nf(D.msch35)} (senise praktika järgi ${nf(D.sch35)}, täna ${nf(D.sch26)}).`, 'sim'),
-    card('Ligipääs tugevale gümnaasiumile', `${pct(D.acc0)} → ${pct(D.acc1)}`, qiN ? `kui ${qiN} maakonnakeskuse gümnaasiumi kvaliteeti tõstetakse (umbes ${mln(D.qiC,1)} aastas): ${D.qi.map(esc).join(', ')}.` : 'gümnaasiumiealistest kuni 45 min kaugusel.', 'otsused') ].join('');
+    card('Õpilased 2040', sgn(D.N40/D.N26-1, v=>pct(v)), `Rahvastikuprognoosi järgi ${nf(D.N26)} õpilast 2026 → ${nf(D.N40)} aastal 2040. Kui koolivõrk jääb samaks, kasvab tegevuskulu õpilase kohta ${sgn(D.pp40/D.pp26-1, v=>pct(v))}.`, 'prognoos'),
+    card(`Tasuvad investeeringud ${D.y0}–${D.y1}`, mln(D.P), `Mudeli eeldustel tasub optimaalse koolivõrgu investeering end tegevuskulu kokkuhoiuga ära ${D.nPk} gümnaasiumipiirkonnas ${D.nAll}-st (arvutuslik tootlus ${D.irr?pct(D.irr,1):'–'} aastas).`, 'sim'),
+    card('Tegevuskulu 2035', `−${mln(D.dC)} aastas`, `Arvutuslik kokkuhoid võrreldes senise praktikaga: ${eur(D.mpp35)} õpilase kohta ${eur(D.pp35)} asemel.`, 'sim'),
+    card('Ligipääs tugevale gümnaasiumile', `${pct(D.acc0)} → ${pct(D.acc1)}`, qiN ? `Eeldusel, et ${qiN} maakonnakeskuse gümnaasiumi kvaliteedi tõstmine (umbes ${mln(D.qiC,1)} aastas) annab 2035. aastaks tulemuse.` : 'Gümnaasiumiealistest kuni 45 min kaugusel.', 'otsused') ].join('');
+  const cav = `<div class="box ava-cav"><h3>Kuidas tulemusi lugeda</h3><ul>
+     <li><b>Tulemused sõltuvad eeldustest.</b> Olulisemad on rahvastikuprognoos, pinnanorm (8 m² õpilase kohta), ehitushind (${eur(asmQ().buildM2||4500)}/m²), kooli mõju õpilase edukusele ja omavalitsuste senine praktika. Eeldusi saab muuta lehel Eeldused.</li>
+     <li><b>Ebakindlus on suur.</b> Eesti ja piirkondade numbrid on suurusjärgu hinnangud (umbes ±15–25%). Mida väiksem üksus, seda ebakindlam: valla ja kooli tasemel näitab mudel suunda, mitte otsust.</li>
+     <li><b>Andmetes on lünki.</b> Õpilaste elukoha ja kooli seos ei ole avalik, hoonete seisukord on hinnatud energiamärgise järgi ja kooli edasiõppe näitaja sõltub ka õpilaste taustast.</li>
+     <li><b>Mudel ei arvesta kõike.</b> Kogukonna roll, perede tegelikud valikud, õpetajate liikumine ja üleminekuaeg tuleb kaaluda eraldi.</li>
+     <li><b>Optimaalne võrk on võrdlusalus.</b> See näitab, mis on eeldustel võimalik; iga muudatus vajab koolipidaja enda analüüsi ja kogukonna kaasamist.</li></ul></div>`;
   const kf = {}; D.kovs.forEach(k=>kf[k]='color-mix(in srgb, var(--good) 30%, var(--soft))');
-  const dots = D.qi.map(n=>OL.schools.find(s=>s.n===n)).filter(s=>s&&s.xy).map(s=>({x:s.xy[0], y:s.xy[1], r:4.5, fill:'var(--scen)', title:s.n+': kvaliteedi tõstmine', go:'kool|'+s.n}));
+  const dots = D.qi.map(n=>OL.schools.find(s=>s.n===n)).filter(s=>s&&s.xy).map(s=>({x:s.xy[0], y:s.xy[1], r:4.5, fill:'var(--scen)', title:s.n+': kvaliteedi tõstmine (eeldus)', go:'kool|'+s.n}));
   el.innerHTML = `${hero}
    <div class="ava-grid">${cards}</div>
+   ${cav}
    <div class="grid2"><div class="box map"><h3>Kus optimaalse võrgu investeering on mudeli järgi tasuv</h3>${mapSVG({kovLayer:true, kovFill:kf, dots})}
-     <div class="legend"><span><i style="background:color-mix(in srgb, var(--good) 30%, var(--soft))"></i>tasuva investeeringuga omavalitsus</span><span><i style="background:var(--soft)"></i>senine praktika, hooned rahuldavas seisus</span><span><i style="background:var(--scen)"></i>maakonnakeskuse gümnaasium: kvaliteedi tõstmine</span></div>
-     <p class="note">Klõpsa omavalitsusel, et näha selle tulemusi.</p></div>
-    <div class="box" style="display:grid; gap:12px; align-content:start"><h3>Vaata oma valda, linna või kooli</h3>
+     <div class="legend"><span><i style="background:color-mix(in srgb, var(--good) 30%, var(--soft))"></i>tasuva investeeringuga omavalitsus</span><span><i style="background:var(--soft)"></i>senine praktika, hooned rahuldavas seisus</span><span><i style="background:var(--scen)"></i>maakonnakeskuse gümnaasium: kvaliteedi tõstmine (eeldus)</span></div></div>
+    <div class="box" style="display:grid; gap:12px; align-content:start"><h3>Uuri mudelit</h3>
+     <div class="ava-links"><button class="btn" data-ava="olukord">Olukord 2025</button><button class="btn" data-ava="prognoos">Prognoos 2040</button><button class="btn" data-ava="sim">Optimaalne võrk</button><button class="btn sec" data-ava="otsused">Arutelunäited</button><button class="btn sec" data-ava="kysi">Küsi mudelilt</button><button class="btn sec" data-ava="eeldused">Eeldused</button><button class="btn sec" data-ava="andmed">Andmed ja täpsus</button></div>
+     <label class="small" for="avaQ" style="margin-top:4px"><b>Mudeli tulemused piirkonna, valla või kooli kohta</b></label>
      <div class="search"><input id="avaQ" list="unitlist" placeholder="Nt Tartu linn, Saaremaa vald, Lõuna-Eesti…" autocomplete="off" style="width:100%"></div>
-     <div class="ava-links"><button class="btn" data-ava="olukord">Olukord 2025</button><button class="btn" data-ava="prognoos">Prognoos 2040</button><button class="btn" data-ava="sim">Optimaalne võrk</button><button class="btn sec" data-ava="otsused">Arutelunäited</button><button class="btn sec" data-ava="kysi">Küsi mudelilt</button><button class="btn sec" data-ava="eeldused">Eeldused</button></div>
-     <p class="small muted" style="margin:0">Mudel arvutab kõik teie brauseris; andmeid ei saadeta kuhugi. Eeldusi saab muuta lehel Eeldused ja mudel arvutab tulemused uuesti. Allikad: EHIS ja Haridussilm, KOVide aruanded, ehitisregister, Statistikaamet (vt Andmed ja täpsus).</p>
-     <p class="small muted" style="margin:0">Mõisted: <b>senine praktika</b> – omavalitsused liidavad koole ja kooliastmeid nagu seni; <b>tasuv investeering</b> – tegevuskulu kokkuhoid katab investeeringu laenu hinna (tootlus üle 4% aastas).</p>${live?'':'<p class="small muted" style="margin:0">Numbrid on vaikeeeldustega; mudel arvutab taustal…</p>'}</div></div>`;
+     <p class="small muted" style="margin:0">Valla ja kooli tasemel on tulemus kõige ebakindlam ja näitab mudeli loogikat, mitte soovitust.</p>
+     <p class="small muted" style="margin:0">Mudel arvutab kõik teie brauseris; andmeid ei saadeta kuhugi. Allikad: EHIS ja Haridussilm, KOVide aruanded, ehitisregister, Statistikaamet (vt Andmed ja täpsus).</p>
+     <p class="small muted" style="margin:0"><b>Senine praktika</b> – omavalitsused liidavad koole ja kooliastmeid nagu seni. <b>Tasuv investeering</b> – tegevuskulu kokkuhoid katab investeeringu laenu hinna (tootlus üle 4% aastas).</p>${live?'':'<p class="small muted" style="margin:0">Numbrid on vaikeeeldustega; mudel arvutab taustal…</p>'}</div></div>`;
   el.querySelectorAll('[data-ava]').forEach(b=>b.onclick=()=>{ ST.lvl='EE'; ST.key='Eesti'; show(b.dataset.ava); });
   const q=$('#avaQ'); if (q) q.onchange=()=>{ const r=resolveUnit(q.value); if (r){ ST.lvl=r[0]; ST.key=r[1]; lsSet('sel',r); show(r[0]==='kool'?'olukord':'sim'); } };
 }
