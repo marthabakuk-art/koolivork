@@ -285,6 +285,7 @@ const ASM = [
  {g:'raha', hide:true, id:'hevShare', l:'HEV-taristu eraldi eelarve', o:[[0,'ei eraldata'],[3,'3%'],[5,'5%'],[8,'8%']], d:5, imp:'väike', budget:true, x:'Erikoolid, väikeklassid ja koolkodud rahastatakse eraldi, sest neid ei ole mõistlik teha igasse kooli.'},
  {g:'hooned', id:'maintShare', l:'Õpikeskkonna säilitamine', o:[[20,'20% uusehituse hinnast'],[30,'30%'],[40,'40%'],[60,'60% (täisrenoveerimine)']], d:30, imp:'keskmine', x:'Koolides, kuhu optimaalse võrgu investeering ei ole tasuv, hoitakse õpikeskkond rahuldavas seisus: halvas seisus pind renoveeritakse ainult 2035. aastal vajaliku pinna ulatuses (8 m² õpilase kohta) ja osaliselt. Hind on osa uusehituse hinnast.'},
  {g:'raha', id:'qiCost', l:'Maakonnakeskuse gümnaasiumide kvaliteedi tõstmine', o:[[0,'ei arvestata'],[500,'500 € gümnaasiumiõpilase kohta aastas'],[750,'750 € (umbes 10% tegevuskulust)'],[1000,'1000 €']], d:750, imp:'keskmine', x:'Maakonnakeskuse riigigümnaasiumid, mida mudel tugevaks ei loe, kuid mis asuvad strateegilises kohas sobiva suurusega korras hoones: koolivõrgu seisukohalt on oluline investeerida nende kvaliteedi tõstmisesse (aineõpetajad, juhtimine, valikkursused, koostöö ülikoolidega). Lisakulu on aastane tegevuskulu gümnaasiumiõpilase kohta alates 2027. Eeldus: 2035. aastaks on kool tugev gümnaasium (gümnaasiumi panus vähemalt oodataval tasemel ja edasiõpe üle Eesti mediaani). Tegelikult võiks väiksemas koolis olla lisakulu õpilase kohta suurem ja suuremas väiksem; mudel kasutab lihtsuse huvides sama summat.'},
+ {g:'olulised', id:'privHost', l:'Erakoolid optimaalses võrgus', o:[[1,'kaasatakse (eeldab regulatsiooni muutmist)'],[0,'ei kaasata']], d:1, imp:'väike', x:'Kas optimaalse võrgu asukohaks võib olla erakool, kuhu omavalitsus suunab oma õpilased. See eeldab regulatsiooni muutmist: omavalitsus maksab erakoolile mudelist tuletatud tasu õpilase kohta, omavalitsuse õpilastelt ei küsita õppemaksu ning omavalitsus saab nõuda tagatisi (minimaalne omakapital, tulemusnäitajad, ebaõnnestumise korral õigus kooli opereerimine sümboolse tasu eest üle võtta). Täna sellist regulatsiooni ei ole.'},
  {g:'raha', id:'dormRate', l:'Kapitali hind (intress)', o:[[3,'3%'],[3.5,'3,5%'],[4,'4%'],[4.5,'4,5%'],[5,'5%']], d:4, imp:'väike', x:'Riigi pikaajalise laenu intress (umbes 3,5%) pluss väike riskimarginaal. Kasutatakse investeeringu aastakulu ja tasuvuse arvutamisel.'},
  {g:'olulised', id:'tA', l:'Tugev akadeemiline gümnaasium kodust kuni', o:[[45,'45 min'],[60,'60 min'],[75,'75 min']], d:45, imp:'suur', x:'Kui kaugel võib akadeemiline gümnaasium kodust olla, et õpilane sõidab iga päev. Kaugemalt tulijad elavad nädala sees õpilaskodus. Sama piiri järgi loetakse, kas õpilasel on ligipääs tugevale gümnaasiumile. Lühem piir tähendab rohkem õpilaskodus elavaid õpilasi (45 min juures umbes 2500, 60 min juures umbes 1600).'},
  {g:'ligipaas', id:'busKm', l:'Koolibussi kulu', o:[[0.05,'0,05 € õpilase km kohta'],[0.07,'0,07 €'],[0.1,'0,10 €']], d:0.07, imp:'keskmine', x:'Väljaspool tiheda ühistranspordiga linnu sõidavad lapsed kooli oma bussiga. Ühistransport on boonus, mitte eeldus.'},
@@ -343,8 +344,27 @@ document.addEventListener('change', e=>{ if (e.target.id && e.target.id.startsWi
 /* ---------- olukord: tegelikud andmed ---------- */
 const YRS = ['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
 function fcCounty(s){ return s.kov==='Tallinna linn' ? 'Tallinn' : s.mk; }
+/* ---------- õpetajate vanus (Haridussilm 2025/26) ja pensionile minek ---------- */
+const TA_AGES = [[22,29],[30,39],[40,49],[50,59],[60,64]], TA_LAB = ['alla 30','30–39','40–49','50–59','60+'], TA_COL = ['#7fb3cc','#4f8fae','#1b5d7c','#a8741a','#a9443a'];
+/* aastaks Y pensionile läinud osa (pensioniiga 65; vanus rühma sees ühtlaselt; 60-aastased ja vanemad lähevad pensionile ühtlaselt 5 aasta jooksul) */
+function taRetFrac(ta, Y){ const d=Y-2025, n=ta.slice(0,5).reduce((a,b)=>a+b,0); if (!(n>0)) return 0;
+  return ta.slice(0,5).reduce((s,v,i)=>{ const [lo,hi]=TA_AGES[i]; return s + v*Math.min(1, Math.max(0, (hi-(65-d)+1)/(hi-lo+1))); }, 0)/n; }
+const taSum = ta => ta.slice(0,5).reduce((a,b)=>a+b,0);
+function taBar(ta, lab){ const n=taSum(ta); if (!n) return '';
+  return `<div class="small" style="display:grid; grid-template-columns:minmax(70px,auto) 1fr; gap:4px 10px; align-items:center"><span>${lab}</span><div style="display:flex; height:16px; border-radius:3px; overflow:hidden" role="img" aria-label="${esc(lab)}: ${ta.slice(0,5).map((v,i)=>TA_LAB[i]+' '+pct(v/n)).join(', ')}">${ta.slice(0,5).map((v,i)=>v?`<span style="flex:${v}; background:${TA_COL[i]}" title="${TA_LAB[i]}: ${nf(v)} (${pct(v/n)})"></span>`:'').join('')}</div></div>`; }
+function taBox(A, isSch, name){
+  const ta=A.ta, n=taSum(ta); if (!n || !OL.taNat) return '';
+  const nat=OL.taNat, nn=taSum(nat), o60=ta[4]/n, r35=taRetFrac(ta,2035), r30=taRetFrac(ta,2030);
+  const where = isSch ? 'Koolis' : ST.lvl==='EE' ? 'Eesti üldhariduskoolides' : (ST.lvl==='reg' ? 'Piirkonna koolides' : esc(genit(name))+' koolides');
+  return `<div class="box" style="display:grid; gap:10px"><h3>Õpetajate vanus ${I('Õpetajate vanus','Haridussilm (EHIS), üldhariduskoolide õpetajad '+OL.taYear+'. Kui õpetaja töötab mitmes koolis, on ta arvestatud igas koolis. Pensionile mineku hinnang: pensioniiga 65, vanus vanuserühma sees ühtlaselt; 60-aastased ja vanemad (sh juba üle 65-aastased) lähevad pensionile ühtlaselt 5 aasta jooksul. Muud lahkumist ametist ei arvestata.')}</h3>
+   <p class="small" style="margin:0; max-width:90ch">${where} töötab ${nf(n)} õpetajat (${OL.taYear}), neist <b>${pct(o60)} on 60-aastased või vanemad</b>${ST.lvl==='EE'&&!isSch?'':` (Eesti ${pct(nat[4]/nn)})`}. Kui pensionile minnakse 65-aastaselt, on 2030. aastaks pensionil umbes ${pct(r30)} ja 2035. aastaks ${pct(r35)} tänastest õpetajatest (Eestis ${pct(taRetFrac(nat,2035))}).</p>
+   ${taBar(ta, isSch?'Kool':ST.lvl==='EE'?'Eesti':'Siin')}${ST.lvl==='EE'&&!isSch?'':taBar(nat,'Eesti')}
+   <div class="legend">${TA_LAB.map((l,i)=>`<span><i style="background:${TA_COL[i]}"></i>${l}</span>`).join('')}</div></div>`; }
+/* õpetajate vajadus vs tänased õpetajad, kes on veel tööl (ametikohad) */
+function taHire(list, ser){ const ta=[0,0,0,0,0,0]; list.forEach(s=>{ if (s.ta) s.ta.forEach((v,i)=>ta[i]+=v); }); if (!taSum(ta)) return null;
+  return {ta, rows:[2026,2030,2035,2040].map(Y=>{ const i=FC.years.indexOf(Y), need=ser[i], left=ta[5]*(1-taRetFrac(ta,Y)); return {Y, need, left, hire:Math.max(0, need-left)}; })}; }
 function olAgg(list){
-  const A = {sch:0, N:{}, cost:0, costN:0, area:0, areaN:0, good:0, goodA:0, fc:OL.fcYears.map(()=>0), g:{hi:0,mid:0,lo:0,na:0}, p:{hi:0,mid:0,lo:0,na:0}, tq:0, tf:0, own:{m:0,r:0,e:0}};
+  const A = {sch:0, N:{}, cost:0, costN:0, area:0, areaN:0, good:0, goodA:0, fc:OL.fcYears.map(()=>0), g:{hi:0,mid:0,lo:0,na:0}, p:{hi:0,mid:0,lo:0,na:0}, tq:0, tf:0, own:{m:0,r:0,e:0}, ta:[0,0,0,0,0,0], taN:0};
   list.forEach(s=>{ YRS.forEach(y=>{ if (s.Y[y]) A.N[y]=(A.N[y]||0)+s.Y[y][0]; });
     const y=s.Y['2025']; if (!y) return; A.sch++; A.own[y[2]]=(A.own[y[2]]||0)+1;
     if (y[1]){ A.cost+=y[1]; A.costN+=y[0]; }
@@ -353,7 +373,8 @@ function olAgg(list){
     if (s.g){ const ng=s.g.slice(9,12).reduce((a,b)=>a+b,0), np=s.g.slice(6,9).reduce((a,b)=>a+b,0);
       if (ng){ const e=s.eg; const c = !e ? 'na' : e[1]>OL.eqMean ? 'hi' : e[2]<OL.eqMean ? 'lo' : 'mid'; A.g[c]+=ng; }
       if (np){ const e=s.ep; const c = !e ? 'na' : e[1]>OL.pkMean ? 'hi' : e[2]<OL.pkMean ? 'lo' : 'mid'; A.p[c]+=np; } }
-    if (s.t){ A.tq+=s.t[0]*s.t[3]; A.tf+=s.t[3]; } });
+    if (s.t){ A.tq+=s.t[0]*s.t[3]; A.tf+=s.t[3]; }
+    if (s.ta){ s.ta.forEach((v,i)=>A.ta[i]+=v); A.taN++; } });
   A.N25=A.N['2025']||0; A.N15=A.N['2015']||0; A.pp=A.costN?A.cost/A.costN:null; A.m2=A.areaN?A.area/A.areaN:null; A.goodS=A.goodA?A.good/A.goodA:null; A.q=A.tf?A.tq/A.tf:null;
   A.N35=A.fc[OL.fcYears.indexOf(2035)]; A.N40=A.fc[OL.fcYears.indexOf(2040)]; A.N25fc = list.filter(s=>s.Y['2025']&&s.g).reduce((x,s)=>x+s.g.reduce((a,b)=>a+b,0),0);
   return A; }
@@ -435,19 +456,20 @@ function viewOlukord(){
     <div class="kpi"><div class="k">Tegevuskulu õpilase kohta ${I('Tegevuskulu õpilase kohta','Kooli tegevuskulu 2025. aastal jagatud õpilaste arvuga. Allikas: KOVide aruanded, erakoolide majandusaasta aruanded; kus tegelikku kulu pole, on kulu tuletatud (vt koolide register). Ei sisalda investeeringuid.')}</div><div class="v">${eur(A.pp)}</div><div class="c">${!isSch&&ST.lvl!=='EE'?'Eesti '+eur(nat.pp):''}</div></div>
     <div class="kpi"><div class="k">Koolipind õpilase kohta ${I('Koolipind','Haridussilma (EHIS) pinnaandmed: kasutuses olev suletud netopind. Mudel peab vajalikuks 8 m² õpilase kohta: see sisaldab kõiki õppetööks vajalikke pindu. Väikesel koolil ei ole mõistlik omada võimlat ja muid pindu, mis on suurele koolile vajalikud, seega on norm kõigile koolidele sama.')}</div><div class="v">${A.m2?nf(A.m2,1)+' m²':'–'}</div><div class="c">${A.area?nf(A.area)+' m² kokku':''}</div></div>
     <div class="kpi"><div class="k">Hooned heas seisus ${I('Hoonete seisukord','Ehitisregister: energiaklass A–C või ehitatud 2010 või hiljem. Kui energiamärgis puudub ja hoone on vanem, loetakse halvas seisus olevaks – tegelik seisukord võib olla parem.')}</div><div class="v">${pct(A.goodS)}</div><div class="c">pinnast</div></div>
-    <div class="kpi"><div class="k">Kvalifitseeritud õpetajad ${I('Õpetajad','Õpetajate ametikohtadest, mis vastavad kvalifikatsiooninõuetele (EHIS 2024/25).')}</div><div class="v">${pct(A.q)}</div><div class="c">ametikohtadest</div></div>
+    <div class="kpi"><div class="k">Kvalifitseeritud õpetajad ${I('Õpetajad','Õpetajate ametikohtadest, mis vastavad kvalifikatsiooninõuetele (EHIS 2024/25).')}</div><div class="v">${pct(A.q)}</div><div class="c">ametikohtadest${taSum(A.ta)?` · 60+: ${pct(A.ta[4]/taSum(A.ta))}`:''}</div></div>
    </div>
    <div class="grid2">
     <div class="box"><h3>Õpilaste arv</h3>${lineChart(A)}</div>
     <div class="box map"><h3>${ST.lvl==='EE'?'Koolid':ST.lvl==='reg'?'Omavalitsused ja koolid':'Asukoht'}</h3>${mapSVG({kovLayer:true, focusReg: ST.lvl==='reg'?ST.key:null, focusKov: ST.lvl==='kov'?ST.key:(isSch?s0.kov:null), dots})}<p class="note">Ringi suurus näitab õpilaste arvu. Klõpsa omavalitsusel või koolil.</p></div>
    </div>
    ${gymVocBox(ST.lvl, ST.key, list)}
+   ${taBox(A, isSch, name)}
    ${(gSum||pSum) ? `<div class="box" style="display:grid; gap:12px"><h3>Edasiõpe ${I('Edasiõppe näitaja','Gümnaasium: kui suur osa 10. klassi alustanutest jõuab riigieelarvelisele kõrghariduse õppekohale (lennud 2022–2024). Põhikool: kui suur osa põhikooli lõpetanutest omandab keskhariduse 4 aasta jooksul. Võrreldakse Eesti keskmisega; „kõrgem” ja „madalam” tähendab, et erinevus on statistiliselt kindel. Näitaja sõltub ka õpilaste taustast ja ei ole kooli hinnang.')}</h3>
      ${isSch ? (s0.eg?`<p class="small">Gümnaasium: ${pct(s0.eg[0])} (vahemik ${pct(s0.eg[1])}–${pct(s0.eg[2])}), Eesti keskmine ${pct(OL.eqMean)}.</p>`:'')+(s0.ep?`<p class="small">Põhikool: ${pct(s0.ep[0])} (vahemik ${pct(s0.ep[1])}–${pct(s0.ep[2])}), Eesti keskmine ${pct(OL.pkMean)}.</p>`:'')
        : qrow('Gümnaasiumiõpilased koolides, mille edasiõpe on Eesti keskmisega võrreldes', A.g, gSum, 'Kui suur osa gümnaasiumiastme õpilastest õpib koolides, mille näitaja on Eesti keskmisest statistiliselt kindlalt kõrgem, sellega sarnane või madalam.') + qrow('Põhikooli vanema astme õpilased koolides, mille edasiõpe on', A.p, pSum, 'Sama põhikooli kohta: keskhariduse omandamine 4 aasta jooksul pärast põhikooli.')}
      </div>`:''}
-   ${kids.length?`<div class="box"><h3>${ST.lvl==='EE'?'Piirkonnad':ST.lvl==='reg'?'Omavalitsused':'Koolid'}</h3><div class="tw"><table><thead><tr><th>${ST.lvl==='kov'?'Kool':'Nimi'}</th>${ST.lvl!=='kov'?'<th class="r">Koole</th>':''}<th class="r">Õpilasi 2025/26</th><th class="r">Muutus 2015–25</th><th class="r">Prognoos 2035</th><th class="r">Tegevuskulu õpilase kohta</th><th class="r">Koolivõrgu tegevuskulu kokku 2025 ${I('Tegevuskulu kokku','Koolide tegevuskulu 2025 (KOV-ide ja erakoolide aruanded): tegevuskulu õpilase kohta × õpilaste arv. Koolides, mille kulu ei ole teada, on kasutatud sama piirkonna keskmist. Investeeringud ei ole siin sees.')}</th></tr></thead><tbody>
-     ${kids.map(([l,k,a])=>`<tr class="click" data-go="${l}|${esc(k)}"><td>${esc(k)}</td>${ST.lvl!=='kov'?`<td class="r">${nf(a.sch)}</td>`:''}<td class="r">${nf(a.N25)}</td><td class="r">${a.N15?sgn((a.N25-a.N15)/a.N15,v=>pct(v)):'–'}</td><td class="r">${a.N25fc?sgn((a.N35-a.N25fc)/a.N25fc,v=>pct(v)):'–'}</td><td class="r">${eur(a.pp)}</td><td class="r">${a.pp&&a.N25?mln(a.pp*a.N25,1):'–'}</td></tr>`).join('')}</tbody></table></div></div>`:''}
+   ${kids.length?`<div class="box"><h3>${ST.lvl==='EE'?'Piirkonnad':ST.lvl==='reg'?'Omavalitsused':'Koolid'}</h3><div class="tw"><table><thead><tr><th>${ST.lvl==='kov'?'Kool':'Nimi'}</th>${ST.lvl!=='kov'?'<th class="r">Koole</th>':''}<th class="r">Õpilasi 2025/26</th><th class="r">Muutus 2015–25</th><th class="r">Prognoos 2035</th><th class="r">Tegevuskulu õpilase kohta</th><th class="r">Õpetajad 60+ ${I('Õpetajad 60+','Osa õpetajatest, kes on 60-aastased või vanemad (Haridussilm, '+(OL.taYear||'2025/26')+').')}</th><th class="r">Koolivõrgu tegevuskulu kokku 2025 ${I('Tegevuskulu kokku','Koolide tegevuskulu 2025 (KOV-ide ja erakoolide aruanded): tegevuskulu õpilase kohta × õpilaste arv. Koolides, mille kulu ei ole teada, on kasutatud sama piirkonna keskmist. Investeeringud ei ole siin sees.')}</th></tr></thead><tbody>
+     ${kids.map(([l,k,a])=>`<tr class="click" data-go="${l}|${esc(k)}"><td>${esc(k)}</td>${ST.lvl!=='kov'?`<td class="r">${nf(a.sch)}</td>`:''}<td class="r">${nf(a.N25)}</td><td class="r">${a.N15?sgn((a.N25-a.N15)/a.N15,v=>pct(v)):'–'}</td><td class="r">${a.N25fc?sgn((a.N35-a.N25fc)/a.N25fc,v=>pct(v)):'–'}</td><td class="r">${eur(a.pp)}</td><td class="r">${taSum(a.ta)?pct(a.ta[4]/taSum(a.ta)):'–'}</td><td class="r">${a.pp&&a.N25?mln(a.pp*a.N25,1):'–'}</td></tr>`).join('')}</tbody></table></div></div>`:''}
    <p class="note">Andmed: EHIS ja Haridussilm (õpilased, pinnad, õpetajad), KOVide ja erakoolide aruanded (kulud), ehitisregister (hooned), Statistikaamet (rahvastik). Kõik on koolide registris koos allikate ja märkustega.</p>`;
 }
 
@@ -566,7 +588,7 @@ function kInfo(name){
     <span>Tegevuskulu õpilase kohta: <b>${y[1]?eur(y[1]/y[0]):'–'}</b>${y[3]==='d'?' (tuletatud)':y[3]==='m'?' (HEV-koolide mudel, tegelik kulu puudub)':''}</span>
     ${s.eg?`<span>Gümnaasiumi edasiõpe: <b>${pct(s.eg[0])}</b> (vahemik ${pct(s.eg[1])}–${pct(s.eg[2])}); Eesti keskmine ${pct(OL.eqMean)} <span class="chip" style="color:${QC[qOf(s,'G')]}">${QT[qOf(s,'G')]}</span></span>`:''}
     ${s.ep?`<span>Põhikooli edasiõpe: <b>${pct(s.ep[0])}</b> (vahemik ${pct(s.ep[1])}–${pct(s.ep[2])}); Eesti keskmine ${pct(OL.pkMean)} <span class="chip" style="color:${QC[qOf(s,'P')]}">${QT[qOf(s,'P')]}</span></span>`:''}
-    ${s.t?`<span>Õpetajad: ${nf(s.t[3],1)} ametikohta, kvalifitseeritud ${pct(s.t[0])}, 60+ ${pct(s.t[1])}; piirkonna õpetajate kättesaadavus ${pct(s.t[2])}</span>`:''}
+    ${s.t?`<span>Õpetajad: ${nf(s.t[3],1)} ametikohta, kvalifitseeritud ${pct(s.t[0])}, 60+ ${pct(s.ta ? s.ta[4]/Math.max(1,s.ta.slice(0,5).reduce((a,b)=>a+b,0)) : s.t[1])}; piirkonna õpetajate kättesaadavus ${pct(s.t[2])}</span>`:''}
     ${s.b?`<span>Hoone: ${nf(s.b[1]||s.b[0])} m² (${y[0]?nf((s.b[1]||s.b[0])/y[0],1):'–'} m² õpilase kohta), heas seisus ${pct(s.b[2])}${s.b[3]?', ehitatud keskmiselt '+s.b[3]:''}</span>`:''}
     ${sr?`<span style="margin-top:4px">Optimaalne võrk 2035: <span class="chip c-${sr.role.code}">${ROLE[sr.role.code]}</span> ${roleText(name,sr)}</span>`:''}
    </div>
@@ -799,7 +821,7 @@ function costHTML(RG){
    ${row(`Hoonete investeeringu kapitalikulu ${I('Kapitalikulu','Investeering jagatud ' + (r.life||40) + ' aastale intressiga (annuiteet). Eraldi (nagu senise praktika stsenaariumis): iga kooli halvas seisus vajalik pind renoveeritakse osaliselt, et õpikeskkond püsiks rahuldav (' + nf(asmQ().maintShare||30) + '% uusehituse hinnast). Pärast (nagu optimaalse võrgu stsenaariumis): vastuvõttev kool renoveeritakse täies mahus (' + nf(asmQ().renovShare||60) + '%) ja vajadusel ehitatakse juurde.')}`, eur(r.capB), eur(r.capInvA), dv(r.capB, r.capInvA))}
    ${row('Ühekordsete kulude kapitalikulu (15 aastat)', '0 €', eur(r.capOne), dv(0, r.capOne))}
    <tr style="font-weight:600"><td>Kokku aastas</td><td class="num">${eur(r.opB+r.capB)}</td><td class="num">${eur(r.opA+r.capA)}</td><td class="num">${dv(r.opB+r.capB, r.opA+r.capA)}</td></tr>
-   <tr><td class="small muted" colspan="4">Investeering: eraldi ${nf(r.invB/1e6,2)} mln €, pärast ${nf(r.invA/1e6,2)} mln € + ühekordsed ${nf(r.one/1e6,2)} mln € (kohandamine ${eur(r.oneoff.adapt)}, koondamishüvitised ${eur(r.oneoff.sev)}, projektikulu ${eur(r.oneoff.fixed)}).</td></tr>
+   <tr><td class="small muted" colspan="4">Investeering: eraldi ${nf(r.invB/1e6,2)} mln €, pärast ${nf(r.invA/1e6,2)} mln € + ühekordsed ${nf(r.one/1e6,2)} mln € (kohandamine ${eur(r.oneoff.adapt)}, koondamishüvitised ${eur(r.oneoff.sev)}${r.retire>0.5?` – ametikohti väheneb ${nf(Math.max(0,r.staffB-r.staffA),1)}, millest ${nf(r.retire,1)} katab õpetajate pensionile minek ${r.year}. aastaks`:''}, projektikulu ${eur(r.oneoff.fixed)}).</td></tr>
   </tbody></table></div>`; }
 function travelHTML(RG){ const t=RG.travel; if (!t.N) return '<p class="small muted">Liikuvaid õpilasi pole.</p>';
   const lim = {L:ASV.tAlg||30, P:ASV.tPK||45, G:ASV.tA||45};
@@ -1147,6 +1169,7 @@ function viewPrognoos(){
        ${smallLine('Tegevuskulu õpilase kohta', FC.years, ser('pp'), null, v=>eur(v), two('pp'))}
        ${smallLine('Tegevuskulu kokku', FC.years, ser('cost'), null, v=>mln(v), two('cost'))}</div>
       <p class="note">Õpilaste arv on mõlemas stsenaariumis sama. Õpetajaid ja tugispetsialiste on näidatud stsenaariumi 1 järgi.</p></div></div>
+   ${taPrognoos(selLvl, PG.sel, selName, ser('teach'))}
    <div class="box" id="pgInv"></div>
    <div class="box" id="pgScen"></div>${kovDecBox()}`;
   $('#pgY').oninput=e=>{ e.target.nextElementSibling.textContent=e.target.value; };
@@ -1159,6 +1182,14 @@ function viewPrognoos(){
   el.querySelectorAll('[data-pg]').forEach(p=>p.addEventListener('click',()=>{ PG.sel=p.dataset.pg; lsSet('pg',PG); viewPrognoos(); }));
   invYears(selLvl, PG.sel, selName); scenTable();
 }
+function taPrognoos(lvl, key, nm, need){
+  const list = OL.schools.filter(s=>s.act && (lvl==='EE' || (lvl==='county' ? s.mk===key : s.kov===key)));
+  const H = taHire(list, need); if (!H) return '';
+  const r = y => H.rows.find(x=>x.Y===y);
+  return `<div class="box"><h3>Õpetajad: vajadus ja pensionile minek – ${esc(nm)} ${I('Õpetajate vajadus ja pensionile minek','Vajadus: mudeli arvutatud õpetajate ametikohad (stsenaarium 1, senine praktika). Tänased õpetajad: Haridussilma '+OL.taYear+' õpetajad ametikohtades, kellest on maha arvatud need, kes on selleks aastaks 65-aastased (vanus rühma sees ühtlaselt; 60-aastased ja vanemad lähevad pensionile ühtlaselt 5 aasta jooksul). Muud lahkumist ametist ei arvestata, seega on värbamisvajadus pigem alahinnatud. Optimaalse võrgu stsenaariumis on õpetajate vajadus väiksem.')}</h3>
+   <div class="tw"><table class="small"><thead><tr><th>Aasta</th><th class="r">Õpetajate vajadus, ametikohti</th><th class="r">Tänastest õpetajatest tööl</th><th class="r">Vaja juurde värvata</th></tr></thead><tbody>
+   ${H.rows.map(x=>`<tr><td>${x.Y}</td><td class="r">${nf(x.need)}</td><td class="r">${nf(x.left)}</td><td class="r"><b>${nf(x.hire)}</b></td></tr>`).join('')}</tbody></table></div>
+   <p class="note">${(()=>{ const x=r(2035), sur=x.left-x.need; return x.hire>0.5 ? `Õpilaste arv väheneb, kuid pensionile läheb rohkem õpetajaid: 2035. aastaks on mudeli järgi vaja umbes ${nf(x.need)} õpetaja ametikohta, tänastest õpetajatest on siis tööl umbes ${nf(x.left)} ametikoha ulatuses, seega tuleb ${nf(x.hire)} ametikoha jagu õpetajaid juurde leida. Koolivõrgu muutusi saab siin teha loomuliku voolavuse arvel, ilma koondamisteta.` : `2035. aastaks on mudeli järgi vaja umbes ${nf(x.need)} õpetaja ametikohta ja tänastest õpetajatest on siis tööl umbes ${nf(x.left)} ametikoha ulatuses, seega on õpetajaid umbes ${nf(sur)} ametikoha võrra vajadusest rohkem. Osa vähenemisest katab pensionile minek, ülejäänu tähendab ümberpaigutamist või koondamist.`; })()} Vajadus on mudeli normatiivne arvutus; tänased õpetajad: Haridussilm ${OL.taYear}, pensioniiga 65, muud lahkumist ametist ei arvestata.</p></div>`; }
 /* investeeringud aastate kaupa valitud üksuses: kaks stsenaariumi */
 function invYears(lvl, key, nm){
   const el=$('#pgInv'); if (!el) return; const X=ST.base, P=X&&X.PL, u=P ? plU(lvl, lvl==='EE'?'Eesti':key) : null;
@@ -1421,7 +1452,7 @@ function viewSimUnit(X){
         const n35 = fu && X.optS && X.optS[s.n] ? X.optS[s.n].N : nS; return `<tr class="click" data-go="kool|${esc(s.n)}"><td>${esc(s.n)}</td><td>${txt}</td><td class="r">${nf(s.Y['2025'][0])}</td><td class="r">${n35!=null?nf(n35):'–'}</td><td>›</td></tr>`; }).join('')}</tbody></table></div>
       <p class="note">„Koos teise kooliga” tähendab, et mudeli järgi oleks lastel kokkuvõttes parem õppida lähedal asuvas suuremas koolis. See ei ole hinnang kooli tööle.</p></div>`; }
   const sched = rows.length || cmo.length ? schedBox(P, rows, cmo) : '';
-  const qiB = qiBox(lvl, key, u);
+  const qiB = qiBox(lvl, key, u), prB = privBox(lvl, key, X);
   const meth = `<details class="box"><summary style="cursor:pointer"><b>Eeldused ja arvutuskäik</b></summary><div class="small" style="display:grid; gap:6px; margin-top:8px; max-width:90ch">
     <p style="margin:0"><b>${BASEL()}</b> (võrdlusalus): omavalitsus liidab kooli või kooliastme, kui õpilasi on vähemalt 10% vähem kui 2026 ja ${RULETXT()}. Tõmbekoolid hoiavad oma suuruse, otsustatud riigigümnaasiumid avatakse, HEV-koolide õpilaste arv püsib. Hooned hoitakse rahuldavas seisus (vt säilitamine).</p>
     <p style="margin:0"><b>Tasuv investeering</b>: optimaalne võrk arvutatakse gümnaasiumipiirkonna kaupa (õpilaste huvides: kvaliteet ja koolitee pikkus esikohal, seejärel kulu). Piirkonna investeering on tasuv, kui 2035. aasta tegevuskulu kokkuhoid võrreldes senise praktikaga katab investeeringu kapitalikulu (4% intress, ${X.Q.schLife||40} aastat), ehk tootlus on üle 4% aastas. Selliseid investeeringuid tasub teha ka laenuga ning neile ei ole vaja seada eelarvelage. Kokku ${P.nStrict} piirkonda ${P.nPk}-st${P.irr?`, tootlus kokku ${pct(P.irr,1)}`:''}.</p>
@@ -1429,7 +1460,7 @@ function viewSimUnit(X){
     <p style="margin:0"><b>Maakonnakeskuste gümnaasiumid</b>: riigigümnaasiumid maakonnakeskustes, mida mudel tugevaks ei loe, kuid mille hoone on korras ja sobiva suurusega, saavad kvaliteedi tõstmiseks lisa ${nf(P.qiCost||0)} € gümnaasiumiõpilase kohta aastas (tegevuskulu). Eeldus: 2035. aastaks on need tugevad gümnaasiumid; selle järgi arvutatakse ligipääs tugevale gümnaasiumile uuesti.</p>
     <p style="margin:0"><b>Tegevuskulu</b>: ${SP()} on sama mis lehel Prognoos 2040. Optimaalse võrgu suunas liikudes väheneb tegevuskulu õpilase kohta piirkonna investeeringute valmimisele järgnevast aastast, 2035. aasta võrgu ja hindade järgi.</p>
     <p style="margin:0"><b>Pinnanorm ja hinnad</b>: 8 m² õpilase kohta kõigis koolides, uusehitus ${eur(X.Q.buildM2)}/m², renoveerimine ${nf(X.Q.renovShare||60)}% uusehitusest. Eeldusi saab muuta lehel Eeldused.</p></div></details>`;
-  return {lede, html: `<p class="summary">${sum}</p>${kpis}<div class="grid2">${map}${invBox}</div>${costBox}${qiB}${kidBox}${schBox}${sched}${meth}`};
+  return {lede, html: `<p class="summary">${sum}</p>${kpis}<div class="grid2">${map}${invBox}</div>${costBox}${qiB}${prB}${kidBox}${schBox}${sched}${meth}`};
 }
 function qiBox(lvl, key, u){ const P=ST.base.PL, qs = lvl==='EE' ? P.qi : qiIn(lvl,key); if (!qs || !qs.length) return '';
   const i35=FC.years.indexOf(2035), cAcc = c => { const x=P.U['county:'+c]; return x && x.acc0!=null ? `${pct(x.acc0)} → ${pct(x.acc1)}` : '–'; };
@@ -1438,6 +1469,39 @@ function qiBox(lvl, key, u){ const P=ST.base.PL, qs = lvl==='EE' ? P.qi : qiIn(l
    <div class="tw"><table class="small"><thead><tr><th>Kool</th><th class="r">Gümnaasiumi õpilasi 2025/26</th><th class="r">Hoone heas seisus</th><th class="r">Pind, m²</th><th class="r">Lisakulu 2035, mln € aastas</th><th class="r">Ligipääs tugevale gümnaasiumile maakonnas</th></tr></thead><tbody>
    ${qs.map(q=>{ const i=fcIdx(q.name), g = i>=0 && FC.sch[i].G ? FC.sch[i].G[i35] : q.G; return `<tr class="click" data-go="kool|${esc(q.name)}"><td>${esc(q.name)}</td><td class="r">${nf(q.G)}</td><td class="r">${q.cond!=null?pct(q.cond):'–'}</td><td class="r">${nf(q.area)}</td><td class="r">${nf(g*P.qiCost/1e6,2)}</td><td class="r">${cAcc(q.county)}</td></tr>`; }).join('')}</tbody></table></div>
    <p class="note">Valikureegel: riigigümnaasium maakonnakeskuses (Tallinn ja Harjumaa välja arvatud), mida mudel ei loe tugevaks; hoone pinnast vähemalt 60% heas seisus või hoone uus/renoveeritud; pind vähemalt 80% vajadusest (8 m² õpilase kohta). Tulemus on eeldus, mitte kindel teadmine: mõõdetav eesmärk võiks olla, et 2030. aastaks on gümnaasiumi panus vähemalt oodataval tasemel ja edasiõpe üle Eesti mediaani. Uute riigigümnaasiumide (nt Rakvere 2022) kohta on panuse andmeid veel vähe, seega võib osa „nõrkusest” olla andmete puudus. Lisakulu saab muuta või välja lülitada lehel Eeldused.</p></div>`; }
+/* erakoolid optimaalses võrgus: kuhu suunatakse munitsipaalkoolide õpilasi ja mis muutub, kui erakoole ei kaasata */
+let PRIVCMP = null, PRIVBUSY = null;
+function plSum(PL){ const u=PL.U['EE:Eesti'], i35=PL.years.indexOf(2035), w=PL.years.map(y=>y<=PL.y1), s=a=>a.reduce((x,v,i)=>x+(w[i]?v:0),0);
+  const reg={}; Object.keys(PL.U).filter(k=>k.startsWith('reg:')).forEach(k=>{ const r=PL.U[k]; reg[k.slice(4)]={P:s(r.P), D:r.D[i35]||0}; });
+  return {P:s(u.P), S:s(u.S), T:s(u.P)+s(u.S)+s(u.C)+s(u.H), D:u.D[i35]||0, n:PL.nStrict, irr:PL.irr, acc:u.acc1, sch:u.sch, reg}; }
+function privMoves(X, lvl, key){ const priv=new Set(OL.schools.filter(s=>s.priv).map(s=>s.n)), out=[];
+  Object.entries(X.S).forEach(([n,sr])=>{ const s=OL.schools.find(x=>x.n===n); if (!s || s.priv) return; if (lvl==='reg' && s.reg!==key) return; if (lvl==='kov' && s.kov!==key) return;
+    (sr.role.move||[]).forEach(m=>{ if (m.to && priv.has(m.to.name)) out.push({from:n, kov:s.kov, N:s.Y['2025']?s.Y['2025'][0]:null, lv:m.l, to:m.to.name, d:m.to.d, toN:(OL.schools.find(x=>x.n===m.to.name).Y['2025']||[null])[0]}); }); });
+  return out; }
+function privBox(lvl, key, X){
+  const mv = privMoves(X, lvl, key), on = ASV.privHost!==0; if (lvl!=='EE' && !mv.length) return '';
+  const ukey = JSON.stringify([asmQ(), asmP()]), cmp = PRIVCMP && PRIVCMP.key===ukey ? PRIVCMP : null;
+  const a = plSum(X.PL), b = cmp ? cmp.s : null;
+  const rr = b ? Object.keys(a.reg).filter(k=>b.reg[k] && (Math.abs(a.reg[k].D-b.reg[k].D)>1e5 || Math.abs(a.reg[k].P-b.reg[k].P)>1e6)).sort((x,y)=>(b.reg[x].D-a.reg[x].D)-(b.reg[y].D-a.reg[y].D)) : [];
+  const cmpHtml = lvl!=='EE' ? `<p class="small muted" style="margin:6px 0 0">Erakoolide kaasamise mõju riigi hariduskuludele saab arvutada sama lehe Eesti vaates.</p>` : !cmp ? `<p style="margin:8px 0 0"><button class="btn sec" id="privCmp" type="button">${PRIVBUSY===ukey?'Arvutan… (kuni 30 s)':'Arvuta võrdlus: '+(on?'ilma erakoolideta':'koos erakoolidega')}</button></p>`
+    : `<div class="tw" style="margin-top:8px"><table class="small"><thead><tr><th></th><th class="r">${on?'Erakoolid kaasatud':'Erakoolid ei ole kaasatud'}</th><th class="r">${on?'Ilma erakoolideta':'Erakoolid kaasatud'}</th><th class="r">Vahe</th></tr></thead><tbody>
+      <tr><td>Tasuvad investeeringud ${X.PL.y0}–${X.PL.y1}</td><td class="r">${mln(a.P)}</td><td class="r">${mln(b.P)}</td><td class="r">${sgn(a.P-b.P, v=>mln(v))}</td></tr>
+      <tr><td>Investeeringud kokku</td><td class="r">${mln(a.T)}</td><td class="r">${mln(b.T)}</td><td class="r">${sgn(a.T-b.T, v=>mln(v))}</td></tr>
+      <tr><td>Tegevuskulu kokkuhoid 2035, aastas</td><td class="r">${mln(a.D,1)}</td><td class="r">${mln(b.D,1)}</td><td class="r">${sgn(a.D-b.D, v=>mln(v,1))}</td></tr>
+      <tr><td>Tasuvaid gümnaasiumipiirkondi</td><td class="r">${a.n}</td><td class="r">${b.n}</td><td class="r">${sgn(a.n-b.n, v=>nf(v))}</td></tr>
+      <tr><td>Ligipääs tugevale gümnaasiumile</td><td class="r">${pct(a.acc)}</td><td class="r">${pct(b.acc)}</td><td class="r">${sgn((a.acc-b.acc)*100, v=>nf(v,1)+' p.p.')}</td></tr></tbody></table></div>
+      ${rr.length?`<p class="small" style="margin:10px 0 4px"><b>Vahe piirkondade kaupa</b> (${on?'kaasatud miinus ilma':'praegune miinus kaasatud'})</p><div class="tw"><table class="small"><thead><tr><th>Gümnaasiumipiirkond</th><th class="r">Tasuvad investeeringud</th><th class="r">Kokkuhoid 2035, aastas</th></tr></thead><tbody>${rr.map(k=>`<tr class="click" data-go="reg|${esc(k)}"><td>${esc(k)} ›</td><td class="r">${sgn(a.reg[k].P-b.reg[k].P, v=>mln(v,1))}</td><td class="r">${sgn(a.reg[k].D-b.reg[k].D, v=>mln(v,1))}</td></tr>`).join('')}</tbody></table></div>`:''}
+      <p class="small muted" style="margin:6px 0 0">Erakool võib optimaalses võrgus olla ka asukoht, kuhu suunatakse osa lähiümbruse õpilastest, ilma et ükski munitsipaalkool tervikuna sinna liiguks. Seepärast on mõju piirkonniti laiem kui ülal loetletud juhtumid. Positiivne vahe tähendab, et ${on?'erakoolide kaasamisega':'praeguse valikuga'} on number suurem. Võrdlus on tehtud samade eeldustega; muutub ainult see, kas erakool võib olla optimaalse võrgu asukoht.</p>`;
+  return `<div class="box"><h3>Erakoolid optimaalses võrgus</h3>
+   <p class="small" style="margin:2px 0 8px; max-width:95ch">${on ? `Mudel lubab praegu, et omavalitsus suunab oma õpilased erakooli, kui see on õpilaste jaoks parim asukoht. ${mv.length?`Optimaalses võrgus liigub ${lvl==='EE'?'':'siin '}munitsipaalkooli aste erakooli ${mv.length} korral: ${mv.slice(0,8).map(m=>`${esc(m.from)} (${m.lv==='L'?'1.–6. kl':m.lv==='P'?'7.–9. kl':'gümnaasium'}) → <b>${esc(m.to)}</b>${m.toN?` (${nf(m.toN)} õpilast)`:''}`).join('; ')}${mv.length>8?' jt':''}.`:'Selles üksuses seda ei juhtu.'}` : 'Praeguse eelduse järgi ei saa erakool olla optimaalse võrgu asukoht: omavalitsuse õpilasi erakoolidesse ei suunata.'}</p>
+   <p class="small" style="margin:0 0 6px; max-width:95ch"><b>See eeldab regulatsiooni muutmist.</b> Täna ei saa omavalitsus erakoolilt nõuda tagatisi, mis on vajalikud, kui erakool täidab omavalitsuse kohustust. Võimalik lahendus:</p>
+   <ul class="small" style="margin:0; padding-left:18px; display:grid; gap:4px; max-width:95ch">
+    <li>omavalitsus maksab erakoolile mudelist tuletatud optimaalse tasu õpilase kohta ja erakool ei küsi omavalitsuse õpilastelt õppemaksu;</li>
+    <li>erakoolil on minimaalne omakapitali nõue ja kokkulepitud tulemusnäitajad;</li>
+    <li>ebaõnnestumise korral on omavalitsusel õigus kooli opereerimine üle võtta sümboolse tasu eest (nt 1 €).</li></ul>
+   <p class="small muted" style="margin:6px 0 0; max-width:95ch">Mudelis on erakooli kulu ja hoone investeering arvestatud samamoodi kui munitsipaalkoolil; regulatsioonis tuleb kokku leppida, kas hoone kapitalikulu sisaldub õpilase tasus. Eelduse saab muuta lehel Eeldused (Erakoolid optimaalses võrgus).</p>
+   ${cmpHtml}</div>`;
+}
 function schedBox(P, rows, cmo){
   const ys=[]; for (let y=P.y0; y<=2035; y++) ys.push(y);
   const yr = ys.map(y=>({y, inv:rows.reduce((x,r)=>x+(y>=r.s && y<=r.e ? r.pr[y-r.s]*r.need : 0),0), sav:rows.filter(r=>r.e<y).reduce((x,r)=>x+r.sv,0), done:rows.filter(r=>r.e===y).length}));
@@ -1524,6 +1588,8 @@ function viewSim(){
         <button class="btn sec" id="toScen">Mis juhtub, kui kool jääb praegusel kujul alles?</button></div>`; }
   } else { const R=viewSimUnit(X); if (typeof R==='string') body=R; else { body=R.html; lede=R.lede; } }
   el.innerHTML = `${pickerHTML()}<div><h2>Optimaalne võrk: ${esc(name)}</h2><p class="lede">${lede}</p></div>${body}`;
+  const pc=$('#privCmp'); if (pc) pc.onclick=()=>{ const ukey=JSON.stringify([asmQ(), asmP()]); if (PRIVBUSY===ukey) return; PRIVBUSY=ukey; viewSim();
+    ask({cmd:'base', Q:{...asmQ(), privHost: ASV.privHost===0?1:0}, P:asmP()}).then(r=>{ PRIVCMP={key:ukey, s:plSum(r.X.PL)}; PRIVBUSY=null; if (ST.view==='sim') viewSim(); }).catch(e=>{ PRIVBUSY=null; console.error(e); }); };
   const ts=$('#toScen'); if (ts) ts.onclick=()=>{ SC.focus=['kool',ST.key]; SC.decisions=[{name:ST.key, act:'keep'}]; SC.params={}; SC.text=`Mis juhtub, kui ${ST.key} jääb praegusel kujul alles?`; SC.interp={title:SC.text, focus:{lvl:'kool',key:ST.key}, force:{open:[{name:ST.key,tier:'keep'}],close:[]}, params:{}, explanation:'Kool säilitab praegused kooliastmed; ümbruskonna võrk kohandub.'}; show('stsen'); };
   setBusy(ST.busy);
 }
